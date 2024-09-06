@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\EventStatusEnum;
 use App\Http\Requests\EventReminderFormRequest;
 use App\Http\Requests\EventReminderImportFormRequest;
 use App\Models\EventReminder;
@@ -23,6 +24,7 @@ class EventReminderController extends Controller
         $event->title = $request->title;
         $event->description = $request->description;
         $event->event_date = $request->event_date;
+        $event->status = EventStatusEnum::UPCOMING;
         $event->user_id = Auth::user()->id;
         $event->save();
 

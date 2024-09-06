@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('reminder_id')->default('ER-' . strtoupper(uniqid()));
             $table->string('title');
             $table->text('description');
-            $table->dateTime('event_date');
+            $table->timestamp('event_date');
             $table->enum('status', array_column(EventStatusEnum::cases(), 'value'))
                 ->default(EventStatusEnum::UPCOMING);
             $table->timestamps();

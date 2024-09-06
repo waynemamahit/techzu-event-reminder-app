@@ -25,6 +25,6 @@ class ProcessReminderJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+
     }
 }
