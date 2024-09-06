@@ -29,8 +29,8 @@ class EventCompletedCron extends Command
      */
     public function handle()
     {
-        $events = EventReminder::where('event_date', '<=', now())
-            ->where('status', EventStatusEnum::UPCOMING)
+        $events = EventReminder::where('status', EventStatusEnum::UPCOMING)
+            ->where('event_date', '<=', now())
             ->get();
 
         foreach ($events as $event) {
