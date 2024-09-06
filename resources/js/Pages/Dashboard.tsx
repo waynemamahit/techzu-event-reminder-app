@@ -7,7 +7,7 @@ import { Head } from '@inertiajs/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import moment from 'moment';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import Swal from 'sweetalert2';
@@ -75,6 +75,17 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
         },
         [setSelectedData, setTitle],
     );
+
+    useEffect(() => {
+        window.Echo.private('event.user.' + auth.user.id).listen(
+            '.event.update',
+            () => refetch(),
+        );
+
+        return () => {
+            window.Echo.leave('event.user.' + auth.user.id);
+        };
+    }, []);
 
     return (
         <AuthenticatedLayout
