@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard', [
+        'csrf_token' => csrf_token()
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')
@@ -18,3 +20,4 @@ Route::middleware('auth')
     });
 
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/event.php';

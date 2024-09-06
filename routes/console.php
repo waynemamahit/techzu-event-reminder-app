@@ -1,8 +1,13 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\EventReminder;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+Schedule::call(function () {
+    $upcomingEvents = EventReminder::where('event_date', now()->addDay())->get();
+    foreach ($upcomingEvents as $event) {
+        Log::info('Sending email', $event);
+        // Mail::to($event->email)->send(new EventReminderMail($event));
+    }
+})->everySecond();
