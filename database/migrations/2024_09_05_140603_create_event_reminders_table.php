@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('event_reminders', function (Blueprint $table) {
             $table->id();
-            $table->string('reminder_id')->default('ER-' . strtoupper(uniqid()));
+            $table->string('reminder_id');
             $table->string('title');
             $table->text('description');
             $table->timestamp('event_date');

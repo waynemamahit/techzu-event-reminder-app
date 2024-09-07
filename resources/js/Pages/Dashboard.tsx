@@ -139,7 +139,7 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
 
     useEffect(() => {
         window.Echo.private('event.user.' + auth.user.id).listen(
-            '.event.update',
+            '.event.updated',
             () => refetch(),
         );
 

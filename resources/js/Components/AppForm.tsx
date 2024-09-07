@@ -40,12 +40,8 @@ export default function AppForm({
                                     message: 'Event date required!',
                                 },
                                 validate: (value) =>
-                                    new Date(value) >=
-                                        new Date(
-                                            new Date()
-                                                .toISOString()
-                                                .slice(0, 16),
-                                        ) || `Date should be after now!`,
+                                    new Date(value).getTime() > Date.now() ||
+                                    `Date and time should be after now!`,
                             })}
                             type="datetime-local"
                             className="input input-bordered w-full"

@@ -27,6 +27,7 @@ class EventReminder extends Model
             $event_date ?? now()->addDay()
         );
 
+        $this->reminder_id = 'ER-' . strtoupper(uniqid());
         $this->event_date = $event_timestamp;
         $this->title = $title ?? '';
         $this->description = $description ?? '';
