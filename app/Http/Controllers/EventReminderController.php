@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\EventStatusEnum;
 use App\Http\Requests\EventReminderFormRequest;
 use App\Http\Requests\EventReminderImportFormRequest;
 use App\Models\EventReminder;
@@ -12,18 +11,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EventReminderController extends Controller
 {
-    private function saveData(EventReminder $event, EventReminderFormRequest $request)
-    {
-        $event->title = $request->title;
-        $event->description = $request->description;
-        $event->event_date = $request->event_date;
-        $event->status = EventStatusEnum::UPCOMING;
-        $event->user_id = Auth::user()->id;
-        $event->save();
-
-        return $event;
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -39,7 +26,15 @@ class EventReminderController extends Controller
      */
     public function store(EventReminderFormRequest $request)
     {
-        return response()->json($this->saveData(new EventReminder(), $request), 201);
+        return response()->json(
+            (new EventReminder())->saveData(
+                $request->title,
+                $request->description,
+                $request->event_date,
+                Auth::user()->id
+            ),
+            201
+        );
     }
 
     /**
@@ -55,7 +50,15 @@ class EventReminderController extends Controller
      */
     public function update(EventReminderFormRequest $request, EventReminder $event)
     {
-        return response()->json($this->saveData($event, $request)->toArray(), 201);
+        return response()->json(
+            $event->saveData(
+                $request->title,
+                $request->description,
+                $request->event_date,
+                Auth::user()->id
+            )->toArray(),
+            201
+        );
     }
 
     /**
@@ -64,7 +67,10 @@ class EventReminderController extends Controller
     public function import(EventReminderImportFormRequest $request)
     {
         return response()->json(
-            Excel::import(new EventReminderImport(Auth::user()->id), $request->file('file')),
+            Excel::import(
+                new EventReminderImport(Auth::user()->id),
+                $request->file('file')
+            ),
             201
         );
     }

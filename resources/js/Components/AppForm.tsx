@@ -1,6 +1,6 @@
 import { EventReminderForm } from '@/models/EventReminder';
-import { useEffect } from 'react';
-import { SubmitHandler, useForm, UseFormSetValue } from 'react-hook-form';
+import { FormEventHandler } from 'react';
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import InputError from './InputError';
 import InputLabel from './InputLabel';
 import PrimaryButton from './PrimaryButton';
@@ -8,35 +8,19 @@ import PrimaryButton from './PrimaryButton';
 export default function AppForm({
     title = 'Add',
     loading = false,
-    setFormData,
+    register,
+    errors,
     onSubmit,
 }: {
     title?: string;
     loading?: boolean;
-    setFormData: (setValue: UseFormSetValue<EventReminderForm>) => void;
-    onSubmit: SubmitHandler<EventReminderForm>;
+    register: UseFormRegister<EventReminderForm>;
+    errors: FieldErrors<EventReminderForm>;
+    onSubmit: FormEventHandler<HTMLFormElement>;
 }) {
-    const {
-        register,
-        formState: { errors },
-        reset,
-        setValue,
-        handleSubmit,
-    } = useForm<EventReminderForm>({
-        defaultValues: new EventReminderForm(),
-    });
-
-    useEffect(() => {
-        if (title === 'Add' && !loading) {
-            reset(new EventReminderForm());
-        } else {
-            setFormData(setValue);
-        }
-    }, [title, setFormData, setValue]);
-
     return (
         <dialog id="app_form_dialog" className="modal">
-            <div className="modal-box -z-[50]">
+            <div className="modal-box -z-[100]">
                 <form method="dialog">
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                         ✕
@@ -45,10 +29,7 @@ export default function AppForm({
 
                 <h2 className="font-bold text-xl">{title} Form</h2>
 
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="[&>label]:py-4 py-4"
-                >
+                <form onSubmit={onSubmit} className="[&>label]:py-4 py-4">
                     <div>
                         <InputLabel htmlFor="eventDate" value="Event Date" />
 
@@ -56,9 +37,15 @@ export default function AppForm({
                             {...register('event_date', {
                                 required: {
                                     value: true,
-                                    message: 'Event description required!',
+                                    message: 'Event date required!',
                                 },
-                                min: new Date().getTime() + 1000 * 60 * 24,
+                                validate: (value) =>
+                                    new Date(value) >=
+                                        new Date(
+                                            new Date()
+                                                .toISOString()
+                                                .slice(0, 16),
+                                        ) || `Date should be after now!`,
                             })}
                             type="datetime-local"
                             className="input input-bordered w-full"

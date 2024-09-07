@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import moment from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
 import Swal from 'sweetalert2';
@@ -21,7 +22,16 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
         useState<EventReminderDataType | null>(null);
     const isNew = useMemo(() => title === 'Add', [title]);
 
-    const { data, isLoading, isError, refetch } = useQuery<
+    const {
+        register,
+        formState: { errors },
+        reset,
+        setValue,
+        handleSubmit,
+    } = useForm<EventReminderForm>({
+        defaultValues: new EventReminderForm(),
+    });
+    const { data, isLoading, isFetching, isError, refetch } = useQuery<
         AxiosResponse<EventReminderDataType[]>
     >({
         queryKey: ['event'],
@@ -46,10 +56,11 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
             Swal.fire('Successfully!', 'Data has been mutate.', 'success');
             refetch();
         },
-        onError(error: AxiosError) {
+        onError(error: AxiosError<{ message: string }>) {
             Swal.fire(
                 'Failed mutate data!',
-                `Cannot ${isNew ? 'add new' : 'update existing'} data.`,
+                `Cannot ${isNew ? 'add new' : 'update existing'} data. ` +
+                    (error.status === 422 ? error.response?.data.message : ''),
                 'error',
             );
             if (error.status === 419) {
@@ -58,16 +69,13 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
         },
     });
 
-    const onSubmit = useCallback(
-        (formData: EventReminderForm) => {
-            if (!isPending) {
-                mutateAsync({ newEvent: formData }).finally(() =>
-                    window.app_form_dialog.close(),
-                );
-            }
-        },
-        [mutateAsync],
-    );
+    const onSubmit = (formData: EventReminderForm) => {
+        if (!isPending) {
+            mutateAsync({ newEvent: formData }).finally(() =>
+                window.app_form_dialog.close(),
+            );
+        }
+    };
 
     const onSelectedData = useCallback(
         (eventItem: EventReminderDataType) => {
@@ -107,6 +115,28 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
         [onSelectedData],
     );
 
+    const openForm = (
+        type: 'Add' | 'Edit' = 'Add',
+        eventItem?: EventReminderDataType,
+    ) => {
+        setTitle(type);
+
+        if (type === 'Add') {
+            reset(new EventReminderForm());
+        } else if (eventItem) {
+            onSelectedData(eventItem);
+            setValue('title', eventItem.title);
+            setValue('description', eventItem.description);
+            setValue('event_date', eventItem.event_date);
+        }
+
+        window.app_form_dialog.showModal();
+    };
+
+    const loadData = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
     useEffect(() => {
         window.Echo.private('event.user.' + auth.user.id).listen(
             '.event.update',
@@ -133,7 +163,7 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                 <div className="card bg-white max-w-7xl mx-auto p-5 lg:p-8">
                     {isError ? (
                         <button
-                            className="btn btn-error text-lg"
+                            className="btn btn-error text-lg my-3"
                             onClick={() => {
                                 refetch();
                             }}
@@ -146,26 +176,27 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                     ) : null}
 
                     {isLoading ? (
-                        <progress className="progress progress-primary w-full"></progress>
+                        <div className="loading loading-spinner loading-lg text-primary mx-auto"></div>
                     ) : (
                         <>
                             <div className="flex flex-wrap justify-start gap-3 p-2">
                                 <ImportForm
                                     csrf_token={csrf_token}
-                                    loadData={() => {
-                                        refetch();
-                                    }}
+                                    loadData={loadData}
                                 />
                                 <button
-                                    className="btn btn-primary text-lg"
+                                    className="btn btn-primary tooltip text-lg"
                                     onClick={() => {
-                                        setTitle('Add');
-                                        window.app_form_dialog.showModal();
+                                        openForm();
                                     }}
+                                    data-tip="Add"
                                 >
                                     <FaPlus />
                                 </button>
                             </div>
+                            {isFetching ? (
+                                <progress className="progress progress-primary w-full"></progress>
+                            ) : null}
                             <div className="overflow-x-auto">
                                 <table className="table table-lg table-pin-rows">
                                     <thead>
@@ -186,18 +217,20 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                                             >
                                                 <th>
                                                     <button
-                                                        className="btn btn-accent btn-sm text-md block"
+                                                        className="btn btn-accent btn-sm tooltip text-md block"
+                                                        data-tip="Edit"
                                                         onClick={() => {
-                                                            onSelectedData(
+                                                            openForm(
+                                                                'Edit',
                                                                 eventItem,
                                                             );
-                                                            window.app_form_dialog.showModal();
                                                         }}
                                                     >
                                                         <FaEdit />
                                                     </button>
                                                     <button
-                                                        className="btn btn-error btn-sm text-md mt-1 block"
+                                                        className="btn btn-error btn-sm tooltip text-md mt-1 block"
+                                                        data-tip="Delete"
                                                         onClick={() =>
                                                             onDelete(eventItem)
                                                         }
@@ -249,14 +282,9 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
             <AppForm
                 title={title}
                 loading={isPending}
-                onSubmit={onSubmit}
-                setFormData={(setValue) => {
-                    if (selectedData !== null) {
-                        setValue('title', selectedData.title);
-                        setValue('description', selectedData.description);
-                        setValue('event_date', selectedData.event_date);
-                    }
-                }}
+                register={register}
+                errors={errors}
+                onSubmit={handleSubmit(onSubmit)}
             />
         </AuthenticatedLayout>
     );

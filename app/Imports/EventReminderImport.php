@@ -2,7 +2,6 @@
 
 namespace App\Imports;
 
-use App\Enums\EventStatusEnum;
 use App\Models\EventReminder;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -18,22 +17,13 @@ class EventReminderImport implements ToCollection
 
     public function collection(Collection $rows)
     {
-        $formatDate = 'Y-m-d h:i:s';
-
         foreach ($rows as $row) {
-            $event = new EventReminder();
-            $event->event_date = date(
-                $formatDate,
-                strtotime(
-                    $row[0] ?? date($formatDate, time() + 60 * 24)
-                )
+            (new EventReminder())->saveData(
+                $row[1],
+                $row[2],
+                $row[0],
+                $this->userId
             );
-            $event->title = $row[1] ?? '';
-            $event->description = $row[2] ?? '';
-            $event->status = strtotime($row[0]) <= time() ?
-                EventStatusEnum::COMPLETED : EventStatusEnum::UPCOMING;
-            $event->user_id = $this->userId;
-            $event->save();
         }
     }
 }

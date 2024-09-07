@@ -1,10 +1,11 @@
 import { EventReminderImportForm } from '@/models/EventReminder';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { FaFileImport } from 'react-icons/fa6';
 import Swal from 'sweetalert2';
 import InputError from './InputError';
-import { AxiosError } from 'axios';
 
 export default function ImportForm({
     csrf_token,
@@ -44,9 +45,12 @@ export default function ImportForm({
         },
     });
 
-    const onSubmit = useCallback((formData: EventReminderImportForm) => {
-        mutate(formData);
-    }, [mutate]);
+    const onSubmit = useCallback(
+        (formData: EventReminderImportForm) => {
+            mutate(formData);
+        },
+        [mutate],
+    );
 
     return (
         <form
@@ -84,12 +88,13 @@ export default function ImportForm({
             <button
                 type="submit"
                 disabled={isPending}
-                className="btn btn-secondary text-lg inline-block"
+                className="btn btn-secondary tooltip"
+                data-tip="Import"
             >
                 {isPending ? (
                     <span className="loading loading-spinner loading-md"></span>
                 ) : (
-                    'Import'
+                    <FaFileImport className="text-lg" />
                 )}
             </button>
         </form>
