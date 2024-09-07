@@ -7,12 +7,14 @@ Route::controller(EventReminderController::class)
     ->prefix('event')
     ->middleware(['auth', 'verified'])
     ->group(function () {
-        $param = '{event}';
-
         Route::get('', 'index');
-        Route::get($param, 'show');
-        Route::post('', 'store');
-        Route::patch($param, 'update');
-        // Route::put('', 'import');
-        Route::delete($param, 'destroy');
+        Route::post('', 'import');
+        Route::patch('', 'store');
+
+        Route::middleware('authUserId')->group(function () {
+            $param = '{event}';
+            Route::get($param, 'show');
+            Route::put($param, 'update');
+            Route::delete($param, 'destroy');
+        });
     });

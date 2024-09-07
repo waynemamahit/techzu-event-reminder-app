@@ -1,4 +1,5 @@
 import AppForm from '@/Components/AppForm';
+import ImportForm from '@/Components/ImportForm';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { EventReminderForm } from '@/models/EventReminder';
 import { PageProps } from '@/types';
@@ -28,13 +29,13 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
     });
     const { mutateAsync, isPending } = useMutation({
         mutationFn: ({
-            method = 'patch',
+            method = 'put',
             newEvent,
         }: {
-            method?: 'post' | 'patch' | 'delete';
+            method?: 'put' | 'patch' | 'delete';
             newEvent?: EventReminderForm;
         }) =>
-            window.axios[isNew ? 'post' : method](
+            window.axios[isNew ? 'patch' : method](
                 '/event' + (isNew ? '' : '/' + selectedData?.id),
                 {
                     _token: csrf_token,
@@ -74,6 +75,36 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
             setTitle('Edit');
         },
         [setSelectedData, setTitle],
+    );
+
+    const onDelete = useCallback(
+        (eventItem: EventReminderDataType) => {
+            onSelectedData(eventItem);
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                showLoaderOnConfirm: true,
+                preConfirm: async () => {
+                    try {
+                        await mutateAsync({
+                            method: 'delete',
+                        });
+                        return true;
+                    } catch (error) {
+                        Swal.showValidationMessage(`
+                            Request failed: Cannot delete the data.
+                        `);
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading(),
+            });
+        },
+        [onSelectedData],
     );
 
     useEffect(() => {
@@ -118,15 +149,23 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                         <progress className="progress progress-primary w-full"></progress>
                     ) : (
                         <>
-                            <button
-                                className="btn btn-primary text-lg my-4"
-                                onClick={() => {
-                                    setTitle('Add');
-                                    window.app_form_dialog.showModal();
-                                }}
-                            >
-                                <FaPlus />
-                            </button>
+                            <div className="flex flex-wrap justify-start gap-3 p-2">
+                                <ImportForm
+                                    csrf_token={csrf_token}
+                                    loadData={() => {
+                                        refetch();
+                                    }}
+                                />
+                                <button
+                                    className="btn btn-primary text-lg"
+                                    onClick={() => {
+                                        setTitle('Add');
+                                        window.app_form_dialog.showModal();
+                                    }}
+                                >
+                                    <FaPlus />
+                                </button>
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="table table-lg table-pin-rows">
                                     <thead>
@@ -159,36 +198,9 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                                                     </button>
                                                     <button
                                                         className="btn btn-error btn-sm text-md mt-1 block"
-                                                        onClick={() => {
-                                                            onSelectedData(
-                                                                eventItem,
-                                                            );
-                                                            Swal.fire({
-                                                                title: 'Are you sure?',
-                                                                text: "You won't be able to revert this!",
-                                                                icon: 'warning',
-                                                                showCancelButton:
-                                                                    true,
-                                                                confirmButtonColor:
-                                                                    '#3085d6',
-                                                                cancelButtonColor:
-                                                                    '#d33',
-                                                                confirmButtonText:
-                                                                    'Yes, delete it!',
-                                                            }).then(
-                                                                (result) => {
-                                                                    if (
-                                                                        result.isConfirmed
-                                                                    ) {
-                                                                        mutateAsync(
-                                                                            {
-                                                                                method: 'delete',
-                                                                            },
-                                                                        );
-                                                                    }
-                                                                },
-                                                            );
-                                                        }}
+                                                        onClick={() =>
+                                                            onDelete(eventItem)
+                                                        }
                                                     >
                                                         <FaTrash />
                                                     </button>

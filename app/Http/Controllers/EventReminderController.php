@@ -12,13 +12,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EventReminderController extends Controller
 {
-    private function authRole(EventReminder $event)
-    {
-        if ($event->user_id !== Auth::user()->id) {
-            return abort(403);
-        }
-    }
-
     private function saveData(EventReminder $event, EventReminderFormRequest $request)
     {
         $event->title = $request->title;
@@ -54,8 +47,6 @@ class EventReminderController extends Controller
      */
     public function show(EventReminder $event)
     {
-        $this->authRole($event);
-
         return response()->json($event->toArray());
     }
 
@@ -64,8 +55,6 @@ class EventReminderController extends Controller
      */
     public function update(EventReminderFormRequest $request, EventReminder $event)
     {
-        $this->authRole($event);
-
         return response()->json($this->saveData($event, $request)->toArray(), 201);
     }
 
@@ -75,7 +64,7 @@ class EventReminderController extends Controller
     public function import(EventReminderImportFormRequest $request)
     {
         return response()->json(
-            Excel::import(new EventReminderImport, $request->file('file')),
+            Excel::import(new EventReminderImport(Auth::user()->id), $request->file('file')),
             201
         );
     }
@@ -85,8 +74,6 @@ class EventReminderController extends Controller
      */
     public function destroy(EventReminder $event)
     {
-        $this->authRole($event);
-
         $event->delete();
 
         return response()->json($event);

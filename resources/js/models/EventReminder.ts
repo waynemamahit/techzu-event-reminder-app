@@ -3,3 +3,7 @@ export class EventReminderForm {
     description = '';
     event_date: string | Date = new Date().toJSON();
 }
+
+export class EventReminderImportForm {
+    file: File[] = [];
+}

@@ -23,7 +23,7 @@ class EventReminderImportFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => 'required|file|mimes:csv'
+            'file' => 'required|file|extensions:csv'
         ];
     }
 }
