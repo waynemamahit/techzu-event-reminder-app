@@ -17,3 +17,5 @@ export default function Guest({ children }: PropsWithChildren) {
         </div>
     );
 }
+
+export const guestLayout = (page: JSX.Element) => <Guest>{page}</Guest>;

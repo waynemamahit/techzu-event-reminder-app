@@ -3,17 +3,17 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import { guestLayout } from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-export default function Login({
+const Login = ({
     status,
     canResetPassword,
 }: {
     status?: string;
     canResetPassword: boolean;
-}) {
+}) => {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -29,7 +29,7 @@ export default function Login({
     };
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Log in" />
 
             {status && (
@@ -110,6 +110,10 @@ export default function Login({
                     </Link>
                 </div>
             </form>
-        </GuestLayout>
+        </>
     );
-}
+};
+
+Login.layout = guestLayout;
+
+export default Login;

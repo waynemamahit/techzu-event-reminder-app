@@ -6,11 +6,11 @@
         "build": "tsc && vite build"
     },
     "devDependencies": {
-        "@headlessui/react": "^2.1.5",
+        "@headlessui/react": "^2.1.7",
         "@inertiajs/react": "^1.2.0",
         "@tailwindcss/forms": "^0.5.9",
         "@tanstack/eslint-plugin-query": "^5.53.0",
-        "@types/node": "^18.13.0",
+        "@types/node": "^22.5.4",
         "@types/react": "^18.3.5",
         "@types/react-dom": "^18.3.0",
         "@vitejs/plugin-react": "^4.3.1",
@@ -24,9 +24,10 @@
         "pusher-js": "^8.4.0-rc2",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "tailwindcss": "^3.4.10",
-        "typescript": "^5.5.4",
-        "vite": "^5.4"
+        "tailwindcss": "^3.4.11",
+        "typescript": "^5.6.2",
+        "vite": "^5.4",
+        "vite-plugin-pwa": "^0.20.5"
     },
     "dependencies": {
         "@tanstack/react-query": "^5.55.4",

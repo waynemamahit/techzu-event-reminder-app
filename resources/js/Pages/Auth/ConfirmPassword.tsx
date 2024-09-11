@@ -1,12 +1,12 @@
-import { FormEventHandler } from 'react';
-import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import { guestLayout } from '@/Layouts/GuestLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { FormEventHandler } from 'react';
 
-export default function ConfirmPassword() {
+const ConfirmPassword = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
         password: '',
     });
@@ -20,11 +20,12 @@ export default function ConfirmPassword() {
     };
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Confirm Password" />
 
             <div className="mb-4 text-sm text-gray-600">
-                This is a secure area of the application. Please confirm your password before continuing.
+                This is a secure area of the application. Please confirm your
+                password before continuing.
             </div>
 
             <form onSubmit={submit}>
@@ -50,6 +51,10 @@ export default function ConfirmPassword() {
                     </PrimaryButton>
                 </div>
             </form>
-        </GuestLayout>
+        </>
     );
-}
+};
+
+ConfirmPassword.layout = guestLayout;
+
+export default ConfirmPassword;

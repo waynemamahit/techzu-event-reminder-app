@@ -1,6 +1,6 @@
 import AppForm from '@/Components/AppForm';
 import ImportForm from '@/Components/ImportForm';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { authLayout } from '@/Layouts/AuthenticatedLayout';
 import { EventReminderForm } from '@/models/EventReminder';
 import { PageProps } from '@/types';
 import { EventReminderDataType } from '@/types/event';
@@ -16,7 +16,7 @@ import Swal from 'sweetalert2';
 
 const formatDate = 'DD MMMM YYYY hh:mm A';
 
-export default function Dashboard({ auth, csrf_token }: PageProps) {
+const Dashboard = ({ auth, csrf_token }: PageProps) => {
     const [title, setTitle] = useState('Add');
     const [selectedData, setSelectedData] =
         useState<EventReminderDataType | null>(null);
@@ -149,14 +149,7 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
     }, []);
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    Dashboard
-                </h2>
-            }
-        >
+        <>
             <Head title="Dashboard" />
 
             <div className="py-12">
@@ -286,6 +279,10 @@ export default function Dashboard({ auth, csrf_token }: PageProps) {
                 errors={errors}
                 onSubmit={handleSubmit(onSubmit)}
             />
-        </AuthenticatedLayout>
+        </>
     );
-}
+};
+
+Dashboard.layout = authLayout('Dashboard');
+
+export default Dashboard;
